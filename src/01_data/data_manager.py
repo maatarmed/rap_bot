@@ -21,16 +21,30 @@ def add_artist(artist):
 		'name' : artist['name'],
 		'is_verified' : artist['is_verified'],
 		'url' : artist['url'],
-		'songs' : get_artist_songs_id(artist['id'])
+		'songs' : get_artist_songs_id(artist['id'], artist_name=artist['name'])
 		}
 			#Step 3: Insert Artist into MongoDB via isnert_one
 	db.artists.insert_one(entry)
-def add_artists(artists):
+
+def add_artists(artists, nthreads=0):
 	if isinstance(artists, list):
-		for artist_id in artists:
-			artist = search(artist_id)
-			add_artist(artist)
-			print('artists {} added with success'.format(artist['name']))
+		print(f'length of list artists {len(artists)}')
+		if nthreads <2:
+			for artist_id in artists:
+				artist = search(artist_id)
+				add_artist(artist)
+				print('artists {} added with success'.format(artist['name']))
+		elif nthreads > 1:
+			threads=[]
+			scrapping_batch_size = len(artists) // nthreads
+			print(f'thread list size = {scrapping_batch_size}')
+			for i in range(nthreads):
+				threads.append(Thread(target=add_artists, 
+					args=(artists[scrapping_batch_size * i : scrapping_batch_size * (i + 1)],)))
+				if i == len(artists)-1:
+					threads.append(Thread(add_artists, (artists[scrapping_batch_size * i:],)))
+				threads[i].start()
+				print('thread {} activated'.format(i+1))
 	else:
 		artist = search(artists)
 		add_artist(artist)
@@ -68,9 +82,10 @@ def add_song(song):
 		entry['featured_artists'] = featured_artists
 		#Step 3: Insert Artist into MongoDB via isnert_one
 	db.songs.insert_one(entry)
+
 def add_songs(songs, nthreads=0):
 	if isinstance(songs, list):
-		print(f'length of list songs{len(songs)}')
+		print(f'length of list songs {len(songs)}')
 		if nthreads <2:
 			for song_id in songs:
 				#print(song_id)
@@ -97,6 +112,7 @@ def add_songs(songs, nthreads=0):
 def get_songs_of_artist(artist_id: int):
 	artist = db.artists.find_one({'id': artist_id})
 	return artist['songs']
+
 def get_songs_of_all_artists():
 	artists = db.artists.find()
 	all_songs = []
@@ -111,12 +127,14 @@ def get_existing_songs():
 	for song in tqdm(songs):
 		existing_songs.append(song['id'])
 	return existing_songs
+
 def get_existing_artists():
 	artists = db.artists.find()
 	ids = []
 	for artist in artists:
 		ids.append(artist['id'])
 	return ids
+
 def get_primary_artists_from_songs(songs=None):
 	#Returns the primary artist of all the songs in the DB#
 	if not songs:
@@ -161,4 +179,5 @@ if __name__ == "__main__":
 	print(len(all_artists), len(existing_artists))
 	non_existing_artists = [artist for artist in all_artists 
 		if artist not in existing_artists]
-	
+
+	add_artists(non_existing_artists, 4)

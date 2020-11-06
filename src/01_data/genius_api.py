@@ -86,7 +86,7 @@ def get_lyrics(song_id):
     return html.find("div", class_="lyrics").get_text()
 
 
-def get_artist_songs_id(artist_id):
+def get_artist_songs_id(artist_id, artist_name=None):
     """
     Retrieve all the songs IDs of an artist
 
@@ -100,7 +100,8 @@ def get_artist_songs_id(artist_id):
     current_page = 1
     next_page = True
     songs = []  # to store final song ids
-
+    if artist_name:
+        print(f'Collecting songs ids of {artist_name}')
     while next_page:
         path = "artists/{}/songs/".format(artist_id)
         params = {'page': current_page}  # the current page
@@ -111,16 +112,19 @@ def get_artist_songs_id(artist_id):
             songs += page_songs
             # Increment current_page value for next loop
             current_page += 1
-            print("Page {} finished scraping".format(current_page))
+            #print("Page {} finished scraping".format(current_page))
             # If you don't wanna wait too long to scrape, un-comment this
             # if current_page == 2:
             #   break
         else:
             # If page_songs is empty, quit
             next_page = False
-
-    print("Song id were scraped from {} pages".format(current_page))
-
+    if artist_name:
+        print("Song id were scraped from {} pages of artist {}"
+            .format(current_page, artist_name))
+    else:
+        print("Song id were scraped from {} pages of unkown artist"
+            .format(current_page))
     # Get all the song ids, excluding not-primary-artist songs.
     songs = [song["id"] for song in songs]
     # if song["primary_artist"]["id"] == artist_id
