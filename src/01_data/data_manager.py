@@ -1,6 +1,6 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 import json
-from genius_api import search, get_artist_songs_id
+from genius_api import search, get_artist_songs_id, get_lyrics
 from tqdm import tqdm
 from threading import Thread
 
@@ -58,10 +58,11 @@ def add_song(song):
 			'id' : song['primary_artist']['id'],
 			'name' : song['primary_artist']['name'],
 			'url' : song['primary_artist']['url'],
-			'is_verified' : song['primary_artist']['is_verified']
+			'is_verified' : song['primary_artist']['is_verified'],
 			},
-		'url' : song['url']
-		}				
+		'url' : song['url'],
+		'lyrics' : get_lyrics(song['id'], song['url'])
+		}
 	if song['album']:
 		entry['album'] = {
 			'id': song['album']['id'], 
@@ -108,6 +109,48 @@ def add_songs(songs, nthreads=0):
 		song = search(songs, 'song')
 		add_song(song)
 		print('song {} added with success'.format(song['title']))
+
+def add_lyric(song):
+	entry = {
+		'song_id' : int(song['id']),
+		'song_title' : song['title'],
+		'url' : song['url']
+		}
+	try:
+		entry['lyrics'] = get_lyrics(song['id'], song['url'])
+	except:
+		entry['lyrics'] = ''	
+			#Step 3: Insert Artist into MongoDB via isnert_one
+	try:
+		db.lyrics.insert_one(entry)
+	except errors.DuplicateKeyError:
+		pass
+	
+
+def add_lyrics(songs, nthreads=0):
+	if isinstance(songs, list):
+		print(f'{len(songs)} songs to get their lyrics')
+		if nthreads <2:
+			for song_id in songs:
+				song = search(song_id, 'song')
+				add_lyric(song)
+		elif nthreads >1:
+			assert len(songs) > 0
+			threads=[]
+			scrapping_batch_size = len(songs) // nthreads
+			print(f'thread list size = {scrapping_batch_size}')
+			for i in range(nthreads):
+				threads.append(Thread(target=add_lyrics, 
+					args=(songs[scrapping_batch_size * i : scrapping_batch_size * (i + 1)],)))
+				if i == len(songs)-1:
+					threads.append(Thread(add_lyrics, (songs[scrapping_batch_size * i:],)))
+				threads[i].start()
+				print('thread {} activated'.format(i+1))
+	else:
+		song = search(songs, 'song')
+		add_lyric(song)
+		print(' lyrics of {} added with success'.format(song['title']))
+
 # Get Requests
 def get_songs_of_artist(artist_id: int):
 	artist = db.artists.find_one({'id': artist_id})
@@ -166,18 +209,46 @@ def get_artists_from_songs():
 				existing_artists.extend(artist['id'])
 	return existing_artists
 
+def get_existing_lyrics(song_id):
+	lyrics = db.lyrics.find_one({'song_id': song_id})['lyrics']
+	return lyrics
+
+def get_existing_lyrics_of_artist(artist_name=None, artist_id=None):
+	if artist_name:
+		songs = db.artists.find_one({'name': artist_name})
+		lyrics = []
+		for song in songs:
+			lyrics.append(get_existing_lyrics(song))
+		return lyrics
+	if artist_id:
+		songs = db.artists.find_one({'id': artist_id})['songs']
+		print(len(songs))
+		lyrics = []
+		for song in songs:
+			try:
+				lyrics.append(get_existing_lyrics(song))
+			except:
+				continue
+		return lyrics
+
+
+
 
 if __name__ == "__main__":
-	songs = get_songs_of_all_artists()
+	#songs = get_songs_of_all_artists()
 	existing_songs = get_existing_songs()
-	non_existing_songs = non_existing_songs_of_artists(artists_songs=songs, 
-		existing_songs=existing_songs)
-	print(len(songs))
+	#non_existing_songs = non_existing_songs_of_artists(artists_songs=songs, 
+	#	existing_songs=existing_songs)
+	#print(len(songs))
 	#add_songs(non_existing_songs, 4)
-	all_artists = get_artists_from_songs()
-	existing_artists = get_existing_artists()
-	print(len(all_artists), len(existing_artists))
-	non_existing_artists = [artist for artist in all_artists 
-		if artist not in existing_artists]
-
-	add_artists(non_existing_artists, 4)
+	#all_artists = get_artists_from_songs()
+	#existing_artists = get_existing_artists()
+	#print(len(all_artists), len(existing_artists))
+	#non_existing_artists = [artist for artist in all_artists 
+	#	if artist not in existing_artists]
+	#song = search(existing_songs[1], 'song')
+	#print(song['url'])
+	#add_lyrics(existing_songs, 8)
+	print(len(get_existing_lyrics_of_artist(artist_id=45)))
+	
+	#add_artists(non_existing_artists, 4)

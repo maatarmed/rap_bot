@@ -66,7 +66,7 @@ def search(query, typee='artist'):
     return data
 
 
-def get_lyrics(song_id):
+def get_lyrics(song_id, url=None):
     """
     Retrieves the lyrics of a given song
 
@@ -77,13 +77,29 @@ def get_lyrics(song_id):
         string: lyrics of the song
     """
     #Retrieves lyrics from html page.#
-    path = search(song_id, 'song')['path']
-    URL = "http://genius.com" + path
-    page = requests.get(URL)
+    if not url:
+        path = search(song_id, 'song')['path']
+        url = "http://genius.com" + path
+    page = requests.get(url)
+    print(url)
     # Extract the page's HTML as a string
     html = BeautifulSoup(page.text, "html.parser")
     # Scrape the song lyrics from the HTML
-    return html.find("div", class_="lyrics").get_text()
+    #print(html.find('div', class_=re.compile(r'^Lyrics__Container')))
+    #lyrics = html.find("div", class_="lyrics").get_text()
+    lyric_tag = html.find("div", class_="lyrics")
+    if lyric_tag is None:
+        class_matcher = re.compile("^Lyrics__Container")
+        lyric_tags = html.find_all("div", class_=class_matcher)
+        if not lyric_tags: 
+            print('no lyrics')
+            return None
+        lyrics = u'\n\n'.join(tag.get_text() for tag in lyric_tags)
+    else:
+        lyrics = lyric_tag.get_text()
+    # remove leading and trailing whitespace
+    return lyrics.strip()
+    
 
 
 def get_artist_songs_id(artist_id, artist_name=None):
