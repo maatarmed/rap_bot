@@ -1,3 +1,4 @@
 rap_bot/
 .vscode/
-*__pycache__/*
+__pycache__/
+src/01_data/__pycache__/
