@@ -148,46 +148,6 @@ def get_artist_songs_id(artist_id, artist_name=None):
     return songs
 
 
-def get_other_artists_from_songs(song_ids):
-    """
-    Retrieves secondary artists from the songs and add the to the database if they don't exist.
-    This function helps to collect more artists and songs
-
-    Args:
-        song_ids (List[Int]): The list of songs ids that we want to get artists from
-
-    Returns:
-        Dict: Artist
-    """
-    try:
-        existing_artists = get_list_artists()
-    except:
-        artist_list = dict()
-        print("Scraping song information")
-        for _, song_id in enumerate(song_ids):
-            print("id:" + str(song_id) + " start. ->")
-            data = search(song_id, 'song')
-            if data["featured_artists"]:
-                for artist in data["featured_artists"]:
-                    if existing_artists:
-                        if not artist['id'] in existing_artists:
-                            artist_list.update({
-                            int(artist["id"]): {
-                            "id": int(artist["id"]),
-                            "url": artist["url"],
-                            "name": artist["name"]}
-                            })
-            if data["primary_artist"]:
-                if existing_artists:
-                    if not data["primary_artist"]["id"] in existing_artists:
-                        artist_list.update({
-                        int(data["primary_artist"]["id"]): {
-                        "id": int(data["primary_artist"]["id"]),
-                        "url": data["primary_artist"]["url"],
-                        "name": data["primary_artist"]["name"]}
-                        })
-        return artist_list  
-
 if __name__ == "__main__":
     #print(get_other_artists_from_songs())
     print('yo')
