@@ -2,4 +2,5 @@ rap_bot/
 .vscode/
 __pycache__/
 src/01_data/__pycache__/
-api_access
+notebooks/
+api_access.py
