@@ -1,7 +1,6 @@
 from pymongo import MongoClient, errors
 from genius_api import GeniusApiManager
 from threading import Thread
-from api_access import *
 
 
 # DB connexion port
@@ -339,6 +338,7 @@ class GeniusApiDatabaseManager:
 
 
 if __name__ == "__main__":
+	API_CLIENT_ACCESS_TOKEN = 'XXXXXXXXXXXXXXX'
 	genius_api_manager = GeniusApiManager(API_CLIENT_ACCESS_TOKEN)
 	dbm = GeniusApiDatabaseManager(PORT)
 	#existing_songs = dbm.get_existing_songs()
@@ -346,4 +346,3 @@ if __name__ == "__main__":
 	#print(len(dbm.get_existing_lyrics_of_artist(artist_id=45)))
 	dbm.add_artists(45,genius_api_manager)
 	
-	#add_artists(non_existing_artists, 4)

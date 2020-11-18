@@ -7,7 +7,7 @@ setup(
     name='rapy_genius',
     version='0.0.1',
     description='a python api to collect data from genius.com using their API',
-    py_modules=["data_manager","genius_api","api_access"],
+    py_modules=["data_manager","genius_api"],
     package_dir={'':'src'},
     classifiers=[
         "Programming Language :: Python :: 3.7",
