@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='rapy_genius',
-    version='0.0.1',
+    version='0.0.2',
     description='a python api to collect data from genius.com using their API',
     py_modules=["data_manager","genius_api"],
     package_dir={'':'src'},
