@@ -13,21 +13,27 @@ This framework has two modules:
 Run the following to install
 
 '''python
+
 pip install rapy_genius
+
 '''
 
 ## Usage
 
 '''python
+
 from genius_api import GeniusApiManager
+
 from data_manager import GeniusApiDatabaseManager
 
 API_CLIENT_ACCESS_TOKEN = "XXXXXXXXX" #The Api client access token generated from https://docs.genius.com/
 
 api_manager = GeniusApiManager(API_CLIENT_ACCESS_TOKEN)
+
 db_manager = GeniusApiDatabaseManager(db_name='Genius_scrapper')
 
 add_artist(45) #Eminem
+
 '''
 
 
@@ -36,7 +42,9 @@ add_artist(45) #Eminem
 to install rapy_genius along with the tools you need to develop and run tests
 
 '''bash
+
 pip install -e .[dev]
+
 '''
 
 
