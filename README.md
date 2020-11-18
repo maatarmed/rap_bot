@@ -2,7 +2,7 @@
 
 Rapy is a package that uses the Genius API to collect data from genius.com as songs, artists and lyrics 
 
-This framework has two modules:
+This package has two modules:
     genius_api: Contains the GeniusApiManager class.
     data_managger: Contains the GeniusApiDatabaseManager class that uses MongoDB and pymongo to store data and use it
 
