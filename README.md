@@ -21,12 +21,14 @@ Run the following to install
 ## Usage
 
 '''python
+
     from genius_api import GeniusApiManager
     from data_manager import GeniusApiDatabaseManager
     API_CLIENT_ACCESS_TOKEN = "XXXXXXXXX" #The Api client access token generated from https://docs.genius.com/
     api_manager = GeniusApiManager(API_CLIENT_ACCESS_TOKEN)
     db_manager = GeniusApiDatabaseManager(db_name='Genius_scrapper')
     add_artist(45) #Eminem
+    
 '''
 
 
