@@ -5,14 +5,9 @@ from bs4 import BeautifulSoup
 import re
 import os
 
-"""
-# genius API base and client_token
-API_BASE = "https://api.genius.com"
-API_CLIENT_ACCESS_TOKEN = "w7XemCkBJW-a0eT5RZ3bjHKt9-fr-v0RYBYS4iQ_9CtY-uvbJomzCpuqoonzw6jM"
-"""
 
 class GeniusApiManager:
-    def __init__(self, base, access_token):
+    def __init__(self, access_token, base='https://api.genius.com'):
         self.base = base
         self.access_token = access_token
 

@@ -339,7 +339,7 @@ class GeniusApiDatabaseManager:
 
 
 if __name__ == "__main__":
-	genius_api_manager = GeniusApiManager(API_BASE, API_CLIENT_ACCESS_TOKEN)
+	genius_api_manager = GeniusApiManager(API_CLIENT_ACCESS_TOKEN)
 	dbm = GeniusApiDatabaseManager(PORT)
 	#existing_songs = dbm.get_existing_songs()
 	#print(existing_songs[:10])
